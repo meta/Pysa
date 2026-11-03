@@ -4,7 +4,6 @@
 # LICENSE file in the root directory of this source tree.
 
 
-# flake8: noqa
 # VENDORED FROM Instagram/LibCST/libcst/codemod/visitors/_apply_type_annotations.py ON COMMIT f7417febe71c1fa8581b40dbf456d7d7d6025e62
 
 from dataclasses import dataclass
@@ -20,7 +19,6 @@ from libcst.helpers import get_full_name_for_node
 from libcst.metadata import PositionProvider, QualifiedNameProvider
 
 from ._gather_global_names import GatherGlobalNamesVisitor
-
 
 NameOrAttribute = Union[cst.Name, cst.Attribute]
 NAME_OR_ATTRIBUTE = (cst.Name, cst.Attribute)
@@ -223,7 +221,7 @@ class TypeCollector(m.MatcherDecoratableVisitor):
         # Store the annotations.
         self.annotations = Annotations.empty()
 
-    def visit_ClassDef(
+    def visit_ClassDef(  # noqa: B906
         self,
         node: cst.ClassDef,
     ) -> None:
@@ -255,7 +253,7 @@ class TypeCollector(m.MatcherDecoratableVisitor):
     ) -> None:
         self.qualifier.pop()
 
-    def visit_FunctionDef(
+    def visit_FunctionDef(  # noqa: B906
         self,
         node: cst.FunctionDef,
     ) -> bool:
@@ -280,7 +278,7 @@ class TypeCollector(m.MatcherDecoratableVisitor):
     ) -> None:
         self.qualifier.pop()
 
-    def visit_AnnAssign(
+    def visit_AnnAssign(  # noqa: B906
         self,
         node: cst.AnnAssign,
     ) -> bool:
@@ -297,7 +295,7 @@ class TypeCollector(m.MatcherDecoratableVisitor):
     ) -> None:
         self.qualifier.pop()
 
-    def visit_Assign(
+    def visit_Assign(  # noqa: B906
         self,
         node: cst.Assign,
     ) -> None:
@@ -718,7 +716,7 @@ class ApplyTypeAnnotationsVisitor(ContextAwareTransformer):
             and not (node.value in self.visited_classes)
         ):
             return annotation.with_changes(
-                annotation=cst.SimpleString(value=f'"{node.value}"')
+                annotation=cst.SimpleString(value=f'"{node.value}"')  # noqa: B907
             )
         return annotation
 
@@ -939,7 +937,7 @@ class ApplyTypeAnnotationsVisitor(ContextAwareTransformer):
         ) -> bool:
             if len(ps) != len(qs):
                 return False
-            for p, q in zip(ps, qs):
+            for p, q in zip(ps, qs):  # noqa: B905
                 if self.strict_posargs_matching and not p.name.value == q.name.value:
                     return False
                 if not compatible(p.annotation, q.annotation):
@@ -990,7 +988,7 @@ class ApplyTypeAnnotationsVisitor(ContextAwareTransformer):
 
     # transform API methods
 
-    def visit_ClassDef(
+    def visit_ClassDef(  # noqa: B906
         self,
         node: cst.ClassDef,
     ) -> None:
@@ -1014,7 +1012,7 @@ class ApplyTypeAnnotationsVisitor(ContextAwareTransformer):
                 return updated_node.with_changes(bases=new_bases)
         return updated_node
 
-    def visit_FunctionDef(
+    def visit_FunctionDef(  # noqa: B906
         self,
         node: cst.FunctionDef,
     ) -> bool:
@@ -1050,7 +1048,7 @@ class ApplyTypeAnnotationsVisitor(ContextAwareTransformer):
             return updated_node.with_changes(params=new_parameters)
         return updated_node
 
-    def visit_Assign(
+    def visit_Assign(  # noqa: B906
         self,
         node: cst.Assign,
     ) -> None:
@@ -1145,7 +1143,7 @@ class ApplyTypeAnnotationsVisitor(ContextAwareTransformer):
             k: v for k, v in self.annotations.typevars.items() if k not in self.typevars
         }
         if typevars:
-            for var, stmt in typevars.items():
+            for var, stmt in typevars.items():  # noqa: B007
                 # pyrefly: ignore [bad-argument-type]
                 toplevel_statements.append(cst.Newline())
                 # pyrefly: ignore [bad-argument-type]
