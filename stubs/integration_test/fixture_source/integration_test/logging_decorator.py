@@ -3,9 +3,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-# flake8: noqa
 
-from typing import Awaitable, Callable
+from typing import Awaitable, Callable  # noqa: F401
 
 
 def with_logging_with_helper(f: Callable[[str], None]) -> Callable[[str], None]:
