@@ -210,10 +210,10 @@ def function_test1_noalarm2():
 
 
 class ClassTest1:
-    def method_test1_alarm1():
+    def method_test1_alarm1():  # pyrefly: ignore[bad-function-definition]
         return 0
 
-    def method_test1_noalarm1():
+    def method_test1_noalarm1():  # pyrefly: ignore[bad-function-definition]
         return 0
 
 
@@ -221,26 +221,26 @@ class NoAlarmClass: ...
 
 
 class ClassTest2_Alarm1:
-    def method1():
+    def method1():  # pyrefly: ignore[bad-function-definition]
         return 0
 
-    def method2():
+    def method2():  # pyrefly: ignore[bad-function-definition]
         return 0
 
 
 class ClassTest2_NoAlarm1(NoAlarmClass):
-    def method1():
+    def method1():  # pyrefly: ignore[bad-function-definition]
         return 0
 
-    def method2():
+    def method2():  # pyrefly: ignore[bad-function-definition]
         return 0
 
 
 class ClassTest3_Alarm1:
-    def method1():
+    def method1():  # pyrefly: ignore[bad-function-definition]
         return 0
 
-    def method2():
+    def method2():  # pyrefly: ignore[bad-function-definition]
         return 0
 
 

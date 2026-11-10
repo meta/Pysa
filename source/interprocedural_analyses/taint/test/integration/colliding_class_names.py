@@ -7,10 +7,10 @@ from pysa import _test_source
 
 
 class C:
-    def foo():
+    def foo():  # pyrefly: ignore[bad-function-definition]
         return _test_source()
 
 
 class C:
-    def also_tainted_but_missing_from_analysis():
+    def also_tainted_but_missing_from_analysis():  # pyrefly: ignore[bad-function-definition]
         return _test_source()
