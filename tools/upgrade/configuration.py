@@ -14,9 +14,10 @@ import json
 import logging
 import re
 import subprocess
+from collections.abc import Iterator
 from logging import Logger
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional, Sequence, Set
+from typing import Any, Dict, List, Optional, Sequence, Set
 
 from . import UserError
 from .errors import Errors
@@ -157,7 +158,7 @@ class Configuration:
     def get_path(self) -> Path:
         return self._path
 
-    def get_source_paths(self) -> Generator[Path, None, None]:
+    def get_source_paths(self) -> Iterator[Path]:
         # This is an approximation
         return Path(self.root).glob("**/*.py")
 
