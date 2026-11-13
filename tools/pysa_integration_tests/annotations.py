@@ -30,6 +30,7 @@ class ExpectIssue:
         line: Optional[int] = None,
         task: Optional[str] = None,
         currently_found: bool = True,
+        features: Optional[list[str]] = None,
     ) -> "ExpectIssue":
         return super().__new__(cls)
 

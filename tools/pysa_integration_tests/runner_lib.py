@@ -29,8 +29,10 @@ from typing import (
     IO,
     List,
     Mapping,
+    NotRequired,
     Optional,
     Sequence,
+    Tuple,
     TypedDict,
     Union,
 )
@@ -461,9 +463,10 @@ class TestAnnotation:
     line: Optional[int] = None
     task: Optional[str] = None
     currently_found: Optional[bool] = None
+    features: Tuple[str, ...] = ()
 
-    def asdict(self) -> Dict[str, Union[bool, int, str]]:
-        result: Dict[str, Union[bool, int, str]] = {
+    def asdict(self) -> Dict[str, Union[bool, int, str, List[str]]]:
+        result: Dict[str, Union[bool, int, str, List[str]]] = {
             "expected": self.expected,
             "code": self.code,
         }
@@ -476,6 +479,8 @@ class TestAnnotation:
         currently_found = self.currently_found
         if currently_found is not None:
             result["currently_found"] = currently_found
+        if len(self.features) > 0:
+            result["features"] = list(self.features)
         return result
 
 
@@ -540,6 +545,7 @@ def parse_test_annotation(
     line: Optional[int] = None
     task: Optional[str] = None
     currently_found: Optional[bool] = None
+    features: Tuple[str, ...] = ()
 
     if len(decorator.args) > 0:
         raise TestConfigurationException(
@@ -580,6 +586,20 @@ def parse_test_annotation(
                     + f"Invalid type for parameter {keyword_argument.arg}"
                 )
             task = keyword_argument.value.value
+        elif keyword_argument.arg == "features":
+            if not isinstance(keyword_argument.value, (ast.List, ast.Tuple)) or not all(
+                isinstance(element, ast.Constant) and isinstance(element.value, str)
+                for element in keyword_argument.value.elts
+            ):
+                raise TestConfigurationException(
+                    f"Invalid annotation `{decorator.func.id}` on `{decorated_function}`: "
+                    + f"Invalid type for parameter {keyword_argument.arg}"
+                )
+            features = tuple(
+                element.value
+                for element in keyword_argument.value.elts
+                if isinstance(element, ast.Constant) and isinstance(element.value, str)
+            )
         elif keyword_argument.arg == "currently_found":
             if not isinstance(keyword_argument.value, ast.Constant) or not isinstance(
                 keyword_argument.value.value, bool
@@ -607,6 +627,7 @@ def parse_test_annotation(
         line=line,
         task=task,
         currently_found=currently_found,
+        features=features,
     )
 
 
@@ -723,6 +744,27 @@ class Issue(TypedDict):
     stop_column: int
     description: str
     name: str
+    features: NotRequired[List[Dict[str, str]]]
+    traces: NotRequired[List[Dict[str, object]]]
+
+
+def issue_feature_names(issue: Issue) -> set[str]:
+    names: set[str] = set()
+
+    def collect(value: object) -> None:
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if key in ("via", "always-via") and isinstance(item, str):
+                    names.add(item)
+                else:
+                    collect(item)
+        elif isinstance(value, list):
+            for item in value:
+                collect(item)
+
+    collect(issue.get("features", []))
+    collect(issue.get("traces", []))
+    return names
 
 
 def compare_issues_to_test_annotations(
@@ -761,7 +803,27 @@ def compare_issues_to_test_annotations(
 
         if expected:
             number_expected_issues += 1
-            if len(matching_issues_index) > 0:  # pass
+            if len(annotation.features) > 0:
+                feature_index = next(
+                    (
+                        index
+                        for index in matching_issues_index
+                        if set(annotation.features)
+                        <= issue_feature_names(remaining_issues[index])
+                    ),
+                    None,
+                )
+                if feature_index is not None:  # pass
+                    remaining_issues.pop(feature_index)
+                elif len(matching_issues_index) > 0:  # failure: wrong features
+                    test_failures.append(
+                        f"Expected an issue with code {code}{line_expectation_prefix} with features {sorted(annotation.features)}, but the matching issue has features {sorted(issue_feature_names(remaining_issues[matching_issues_index[0]]))}."
+                    )
+                else:  # failure
+                    test_failures.append(
+                        f"Expected an issue with code {code}{line_expectation_prefix}{expected_reason}, but no issue was found{line_expectation_suffix}."
+                    )
+            elif len(matching_issues_index) > 0:  # pass
                 remaining_issues.pop(matching_issues_index[0])
             else:  # failure
                 test_failures.append(

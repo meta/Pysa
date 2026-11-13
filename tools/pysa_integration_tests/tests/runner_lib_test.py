@@ -212,6 +212,39 @@ class RunnerLibTest(testslide.TestCase):
                 """
                 )
             )
+        self.assertEqual(
+            test_runner_lib.parse_test_annotations_from_source(
+                textwrap.dedent(
+                    """
+                    @ExpectIssue(code=1000, features=['external_query'])
+                    def foo() -> None:
+                        pass
+                """
+                )
+            ),
+            {
+                "foo": FunctionTestAnnotations(
+                    definition_line=3,
+                    annotations=[
+                        TestAnnotation(
+                            expected=True,
+                            code=1000,
+                            features=("external_query",),
+                        )
+                    ],
+                )
+            },
+        )
+        with self.assertRaises(test_runner_lib.TestConfigurationException):
+            test_runner_lib.parse_test_annotations_from_source(
+                textwrap.dedent(
+                    """
+                    @ExpectIssue(code=1000, features=[1])
+                    def foo() -> None:
+                        pass
+                """
+                )
+            )
 
     @staticmethod
     def make_issue(code: int, line: int) -> test_runner_lib.Issue:
@@ -226,6 +259,14 @@ class RunnerLibTest(testslide.TestCase):
             "description": "dummy issue",
             "name": "dummy name",
         }
+
+    @staticmethod
+    def make_issue_with_feature(
+        code: int, line: int, feature: str
+    ) -> test_runner_lib.Issue:
+        issue = RunnerLibTest.make_issue(code, line)
+        issue["features"] = [{"always-via": feature}]
+        return issue
 
     def assert_compare_to_test_annotations_success(
         self, issues: List[test_runner_lib.Issue], annotations: List[TestAnnotation]
@@ -317,6 +358,19 @@ class RunnerLibTest(testslide.TestCase):
                 TestAnnotation(expected=False, code=1000, line=1),
                 TestAnnotation(expected=True, code=1000, line=2),
                 TestAnnotation(expected=False, code=1000, line=3),
+            ],
+        )
+        # features must be present on the detected issue.
+        self.assert_compare_to_test_annotations_success(
+            issues=[RunnerLibTest.make_issue_with_feature(1000, 1, "external_query")],
+            annotations=[
+                TestAnnotation(expected=True, code=1000, features=("external_query",))
+            ],
+        )
+        self.assert_compare_to_test_annotations_fail(
+            issues=[RunnerLibTest.make_issue(code=1000, line=1)],
+            annotations=[
+                TestAnnotation(expected=True, code=1000, features=("external_query",))
             ],
         )
         # test with currently_found=True
