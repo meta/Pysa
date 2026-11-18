@@ -664,7 +664,6 @@ and Dictionary : sig
 
       val location_insensitive_compare : t -> t -> int
     end
-    [@@deriving equal, compare, sexp, show, hash, to_yojson]
 
     type t =
       | KeyValue of KeyValue.t

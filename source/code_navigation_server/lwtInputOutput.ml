@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *)
 
-open Base
-
 let write_line_ignoring_errors ~output_channel message =
   let send () =
     let%lwt () = Lwt_io.write_line output_channel message in

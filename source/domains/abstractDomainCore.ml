@@ -37,12 +37,11 @@ type ('k, 'a, _, _) operation =
   (* Perform two operations in sequence when the first is Reduce and the second is Transform. Result
      of Reduce will be passed to Transform operation. *)
   | ReduceTransform :
-      ((([ `Reduce ] as 'k1), 'a, 'f, 'r) operation * 'r)
-      * (([ `Transform ] as 'k2), 'a, 'g, 'r) operation
+      (([ `Reduce ], 'a, 'f, 'r) operation * 'r) * (([ `Transform ] as 'k2), 'a, 'g, 'r) operation
       -> ('k2, 'a, 'f * ('r -> 'g), 'r) operation
   (* Perform two operations in sequence when th first is Transform and the second is Reduce. *)
   | TransformReduce :
-      (([ `Transform ] as 'k1), 'a, 'f, 'r) operation * (([ `Reduce ] as 'k2), 'a, 'g, 'r) operation
+      ([ `Transform ], 'a, 'f, 'r) operation * (([ `Reduce ] as 'k2), 'a, 'g, 'r) operation
       -> ('k2, 'a, 'f * 'g, 'r) operation
   (* context grabs an arbitrary outer part and passes it to an inner operation. 'c part must be on
      the path to 'a part in the structure. Only applies to non-leaf domain parts (like Map.Key,
