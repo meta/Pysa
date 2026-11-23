@@ -85,7 +85,7 @@ arc lint
 Set `PYRE_BINARY` to your built binary to override the default:
 ```bash
 export PYRE_BINARY=/path/to/source/_build/default/main.exe
-pyre -n check  # Use one-off check mode, not the server, when recompiling frequently
+pyre -n check  # OSS only: Use one-off check mode, not the server, when recompiling frequently (Meta: arc pyrefly)
 ```
 
 ### Pyrefly Integration
