@@ -20,7 +20,7 @@ class Simple:
         _test_sink(self.value)
 
     @staticmethod
-    def expand_subexpression(values: List[Simple]) -> None:
+    def expand_subexpression(values: List["Simple"]) -> None:
         # Private variables are expended in all expressions.
         _test_sink(values[0].__value)
 

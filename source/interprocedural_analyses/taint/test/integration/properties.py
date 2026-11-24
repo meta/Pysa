@@ -26,7 +26,7 @@ class Class:
         self.untainted = _test_source()
         return self.my_property
 
-    def uses_other(self, other: Optional[Class]):
+    def uses_other(self, other: Optional["Class"]):
         if other:
             return other.my_property
         else:

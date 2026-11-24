@@ -149,7 +149,7 @@ def test_issue_with_tito_copy_dict():
 
 @dataclass(frozen=True)
 class PartiallyZonedDict(MutableMapping[str, str]):
-    def copy(self) -> PartiallyZonedDict:
+    def copy(self) -> "PartiallyZonedDict":
         return self
 
 
