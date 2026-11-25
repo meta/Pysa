@@ -364,8 +364,6 @@ def trace(
     ENTRYPOINTS_FILE: a file containing a JSON list of caller strings, which represent entrypoints
       transitive callees will be found
     """
-    # TODO (T141832117): consume method override information to perform traces on call graphs
-    #   with overrides
 
     issues = load_json_from_file(issues_file, "ISSUES_FILE")
     call_graph_data = load_json_from_file(call_graph_file, "CALL_GRAPH_FILE")
